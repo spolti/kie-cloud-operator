@@ -399,6 +399,7 @@ func TestRhpamProdImmutableJMSEnvironment(t *testing.T) {
 					{
 						Jms: &v1.KieAppJmsObject{
 							EnableKieServerJMSIntegration: true,
+							KieServerJmsExecutor:          false,
 							KieServerJmsUsername:          "adminUser",
 							KieServerJmsPassword:          "adminPassword",
 							KieServerJmsAuditTransacted:   false,
@@ -444,11 +445,14 @@ func testAMQEnvs(t *testing.T, kieserverEnvs []corev1.EnvVar, amqEnvs []corev1.E
 		case "KIE_SERVER_JMS_ENABLE_SIGNAL":
 			assert.Equal(t, "false", env.Value)
 
+		case "KIE_SERVER_EXECUTOR_JMS":
+			assert.Equal(t, "false", env.Value)
+
 		case "KIE_SERVER_JMS_ENABLE_AUDIT":
 			assert.Equal(t, "true", env.Value)
 
 		case "KIE_SERVER_JMS_AUDIT_TRANSACTED":
-			assert.Equal(t, "true", env.Value)
+			assert.Equal(t, "false", env.Value)
 
 		case "MQ_SERVICE_PREFIX_MAPPING":
 			assert.Equal(t, "test-jms-kieserver-amq7=AMQ", env.Value)
@@ -463,7 +467,7 @@ func testAMQEnvs(t *testing.T, kieserverEnvs []corev1.EnvVar, amqEnvs []corev1.E
 			assert.Equal(t, "tcp", env.Value)
 
 		case "AMQ_QUEUES":
-			assert.Equal(t, "queue/KIE.SERVER.EXECUTOR, queue/KIE.SERVER.REQUEST, queue/KIE.SERVER.RESPONSE, queue/CUSTOM.KIE.SERVER.AUDIT", env.Value)
+			assert.Equal(t, "queue/KIE.SERVER.REQUEST, queue/KIE.SERVER.RESPONSE, queue/CUSTOM.KIE.SERVER.AUDIT", env.Value)
 		}
 	}
 
