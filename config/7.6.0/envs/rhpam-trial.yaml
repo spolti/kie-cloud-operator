@@ -3,6 +3,8 @@ console:
     - metadata:
         name: "[[.ApplicationName]]-[[.Console.Name]]"
       spec:
+        strategy:
+          type: Recreate
         template:
           spec:
             containers:

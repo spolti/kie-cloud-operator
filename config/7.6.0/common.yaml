@@ -7,8 +7,6 @@ console:
           application: "[[.ApplicationName]]"
           service: "[[.ApplicationName]]-[[.Console.Name]]"
       spec:
-        strategy:
-          type: Recreate
         triggers:
           - type: ImageChange
             imageChangeParams:
@@ -304,7 +302,10 @@ smartRouter:
           service: "[[.ApplicationName]]-smartrouter"
       spec:
         strategy:
-          type: Recreate
+          rollingParams:
+            maxSurge: 100%
+            maxUnavailable: 0
+          type: Rolling
         triggers:
           - type: ImageChange
             imageChangeParams:
