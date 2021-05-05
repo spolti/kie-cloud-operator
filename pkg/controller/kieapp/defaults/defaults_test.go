@@ -5955,11 +5955,10 @@ func TestCRServerCPULimitAndRequestUsingMilicores(t *testing.T) {
 
 	values := &corev1.ResourceRequirements{
 		Limits: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse("1500m"),
+			corev1.ResourceCPU: resource.MustParse("1500m"),
 		},
 		Requests: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse("1"),
-
+			corev1.ResourceCPU: resource.MustParse("1"),
 		},
 	}
 	assert.Equal(t, values.Requests.Cpu(), env.Servers[0].DeploymentConfigs[0].Spec.Template.Spec.Containers[0].Resources.Requests.Cpu())
