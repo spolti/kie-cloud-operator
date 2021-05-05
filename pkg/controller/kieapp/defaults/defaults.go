@@ -1389,10 +1389,10 @@ func setResourcesDefault(kieObject *api.KieAppObject, limits, requests map[strin
 	if kieObject.Resources.Requests == nil {
 		kieObject.Resources.Requests = corev1.ResourceList{corev1.ResourceCPU: createResourceQuantity(requests["CPU"]), corev1.ResourceMemory: createResourceQuantity(requests["MEM"])}
 	}
+
 	if kieObject.Resources.Limits.Cpu() == nil {
 		kieObject.Resources.Limits.Cpu().Add(createResourceQuantity(limits["CPU"]))
 	}
-
 	if kieObject.Resources.Limits.Memory() == nil {
 		kieObject.Resources.Limits.Memory().Add(createResourceQuantity(limits["MEM"]))
 		log.Infof("Memory Limits +%v", kieObject.Resources.Limits.Memory())
@@ -1400,25 +1400,17 @@ func setResourcesDefault(kieObject *api.KieAppObject, limits, requests map[strin
 	if kieObject.Resources.Requests.Cpu() == nil {
 		kieObject.Resources.Requests.Cpu().Add(createResourceQuantity(requests["CPU"]))
 	}
-
 	if kieObject.Resources.Requests.Memory() == nil {
 		kieObject.Resources.Requests.Memory().Add(createResourceQuantity(requests["MEM"]))
 		log.Infof("Memory Requests +%v", kieObject.Resources.Requests.Memory())
 	}
 
-	normalized := &corev1.ResourceRequirements{
-		Limits: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse(kieObject.Resources.Limits.Cpu().String()),
-			corev1.ResourceMemory: resource.MustParse(kieObject.Resources.Limits.Memory().String()),
-		},
-		Requests: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse(kieObject.Resources.Requests.Cpu().String()),
-			corev1.ResourceMemory: resource.MustParse(kieObject.Resources.Requests.Memory().String()),
-		},
-	}
-	kieObject.Resources.Requests = normalized.Requests
-	kieObject.Resources.Limits = normalized.Limits
-
+	kieObject.Resources.Limits.Cpu().Add(createResourceQuantity(kieObject.Resources.Limits.Cpu().String()))
+	kieObject.Resources.Limits.Memory().Add(createResourceQuantity(kieObject.Resources.Limits.Memory().String()))
+	log.Infof("Memory Limits +%v", kieObject.Resources.Limits.Memory())
+	kieObject.Resources.Requests.Cpu().Add(createResourceQuantity(kieObject.Resources.Requests.Cpu().String()))
+	kieObject.Resources.Requests.Memory().Add(createResourceQuantity(kieObject.Resources.Requests.Memory().String()))
+	log.Infof("Memory Requests +%v", kieObject.Resources.Requests.Memory())
 }
 
 // normalizeRequests format requests/limits when set to , e.g. to 1000m
