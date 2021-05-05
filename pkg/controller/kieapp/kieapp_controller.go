@@ -95,6 +95,8 @@ func (reconciler *Reconciler) Reconcile(request reconcile.Request) (reconcile.Re
 		return reconcile.Result{}, err
 	}
 
+	// maybe add the formater here
+
 	//Obtain in-memory representation of basic environment being requested:
 	env, err := defaults.GetEnvironment(instance, reconciler.Service)
 	if err != nil {

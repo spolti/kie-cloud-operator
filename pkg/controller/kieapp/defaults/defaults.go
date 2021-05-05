@@ -295,6 +295,7 @@ func findCustomObjectByName(template api.CustomObject, objects []api.CustomObjec
 }
 
 func getEnvTemplate(cr *api.KieApp) (envTemplate api.EnvTemplate, err error) {
+	// TODO
 	SetDefaults(cr)
 	serversConfig, err := getServersConfig(cr)
 	if err != nil {
@@ -1391,15 +1392,56 @@ func setResourcesDefault(kieObject *api.KieAppObject, limits, requests map[strin
 	if kieObject.Resources.Limits.Cpu() == nil {
 		kieObject.Resources.Limits.Cpu().Add(createResourceQuantity(limits["CPU"]))
 	}
+
 	if kieObject.Resources.Limits.Memory() == nil {
 		kieObject.Resources.Limits.Memory().Add(createResourceQuantity(limits["MEM"]))
+		log.Infof("Memory Limits +%v", kieObject.Resources.Limits.Memory())
 	}
 	if kieObject.Resources.Requests.Cpu() == nil {
 		kieObject.Resources.Requests.Cpu().Add(createResourceQuantity(requests["CPU"]))
 	}
+
 	if kieObject.Resources.Requests.Memory() == nil {
 		kieObject.Resources.Requests.Memory().Add(createResourceQuantity(requests["MEM"]))
+		log.Infof("Memory Requests +%v", kieObject.Resources.Requests.Memory())
 	}
+
+	normalized := &corev1.ResourceRequirements{
+		Limits: corev1.ResourceList{
+			corev1.ResourceCPU:    resource.MustParse(kieObject.Resources.Limits.Cpu().String()),
+			corev1.ResourceMemory: resource.MustParse(kieObject.Resources.Limits.Memory().String()),
+		},
+		Requests: corev1.ResourceList{
+			corev1.ResourceCPU:    resource.MustParse(kieObject.Resources.Requests.Cpu().String()),
+			corev1.ResourceMemory: resource.MustParse(kieObject.Resources.Requests.Memory().String()),
+		},
+	}
+	kieObject.Resources.Requests = normalized.Requests
+	kieObject.Resources.Limits = normalized.Limits
+
+}
+
+// normalizeRequests format requests/limits when set to , e.g. to 1000m
+// needs to be simplified to 1.
+func normalizeRequests(kieObject *api.KieAppObject) {
+	normalized := &corev1.ResourceRequirements{
+		Limits: corev1.ResourceList{
+			corev1.ResourceCPU: resource.MustParse(kieObject.Resources.Limits.Cpu().String()),
+		},
+		Requests: corev1.ResourceList{
+			corev1.ResourceCPU: resource.MustParse(kieObject.Resources.Requests.Cpu().String()),
+		},
+	}
+
+	if kieObject.Resources.Requests.Memory() == nil || kieObject.Resources.Requests.Memory().IsZero() {
+		normalized.Requests.Memory().Add(resource.MustParse(kieObject.Resources.Requests.Memory().String()))
+	}
+	if kieObject.Resources.Limits.Memory() == nil || kieObject.Resources.Limits.Memory().IsZero() {
+		normalized.Limits.Memory().Add(resource.MustParse(kieObject.Resources.Limits.Memory().String()))
+	}
+
+	kieObject.Resources.Requests = normalized.Requests
+	kieObject.Resources.Limits = normalized.Limits
 }
 
 func createResourceQuantity(constraint string) resource.Quantity {
